@@ -1,0 +1,1198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STEM IoT & Robotics Lesson Planner</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            padding: 30px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 4px solid #667eea;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 8px;
+            font-size: 1.1em;
+        }
+
+        .form-group select, .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        .form-group select:focus, .form-group input:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .content-area {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+        }
+
+        .content-area h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
+            color: white;
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .preview-area {
+            background: white;
+            border: 2px dashed #667eea;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            min-height: 200px;
+        }
+
+        .preview-content {
+            font-family: 'Times New Roman', serif;
+            line-height: 1.6;
+        }
+
+        .status-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #28a745;
+            display: none;
+        }
+
+        .days-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .day-input {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid #e9ecef;
+        }
+
+        .day-input label {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 STEM IoT & Robotics Lesson Planner</h1>
+            <p>Professional Scheme of Work Generator for Preschool to Grade 9</p>
+        </div>
+
+        <div class="main-content">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="gradeLevel">Grade Level</label>
+                    <select id="gradeLevel">
+                        <option value="">Select Grade Level</option>
+                        <option value="Preschool">Preschool (Ages 3-5)</option>
+                        <option value="Grade 1">Grade 1 (Ages 6-7)</option>
+                        <option value="Grade 2">Grade 2 (Ages 7-8)</option>
+                        <option value="Grade 3">Grade 3 (Ages 8-9)</option>
+                        <option value="Grade 4">Grade 4 (Ages 9-10)</option>
+                        <option value="Grade 5">Grade 5 (Ages 10-11)</option>
+                        <option value="Grade 6">Grade 6 (Ages 11-12)</option>
+                        <option value="Grade 7">Grade 7 (Ages 12-13)</option>
+                        <option value="Grade 8">Grade 8 (Ages 13-14)</option>
+                        <option value="Grade 9">Grade 9 (Ages 14-15)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="term">Academic Term</label>
+                    <select id="term">
+                        <option value="">Select Term</option>
+                        <option value="Term 1">Term 1</option>
+                        <option value="Term 2">Term 2</option>
+                        <option value="Term 3">Term 3</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="week">Week Number</label>
+                    <select id="week">
+                        <option value="">Select Week</option>
+                        <option value="Week 1">Week 1</option>
+                        <option value="Week 2">Week 2</option>
+                        <option value="Week 3">Week 3</option>
+                        <option value="Week 4">Week 4</option>
+                        <option value="Week 5">Week 5</option>
+                        <option value="Week 6">Week 6</option>
+                        <option value="Week 7">Week 7</option>
+                        <option value="Week 8">Week 8</option>
+                        <option value="Week 9">Week 9</option>
+                        <option value="Week 10">Week 10</option>
+                        <option value="Week 11">Week 11</option>
+                        <option value="Week 12">Week 12</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="mainTopic">Main Topic/Theme</label>
+                    <input type="text" id="mainTopic" placeholder="e.g., Introduction to Sensors, Basic Programming">
+                </div>
+            </div>
+
+            <div class="content-area">
+                <h3>📅 Daily Lesson Content</h3>
+                <div class="days-grid">
+                    <div class="day-input">
+                        <label for="monday">Monday</label>
+                        <textarea id="monday" placeholder="Enter Monday's lesson content, activities, and objectives..."></textarea>
+                    </div>
+                    <div class="day-input">
+                        <label for="tuesday">Tuesday</label>
+                        <textarea id="tuesday" placeholder="Enter Tuesday's lesson content, activities, and objectives..."></textarea>
+                    </div>
+                    <div class="day-input">
+                        <label for="wednesday">Wednesday</label>
+                        <textarea id="wednesday" placeholder="Enter Wednesday's lesson content, activities, and objectives..."></textarea>
+                    </div>
+                    <div class="day-input">
+                        <label for="thursday">Thursday</label>
+                        <textarea id="thursday" placeholder="Enter Thursday's lesson content, activities, and objectives..."></textarea>
+                    </div>
+                    <div class="day-input">
+                        <label for="friday">Friday</label>
+                        <textarea id="friday" placeholder="Enter Friday's lesson content, activities, and objectives..."></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-area">
+                <h3>🎯 Additional Information</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="learningObjectives">Learning Objectives</label>
+                        <textarea id="learningObjectives" placeholder="Enter specific learning objectives for this week..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="resources">Resources & Materials</label>
+                        <textarea id="resources" placeholder="List required materials, tools, and resources..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="assessment">Assessment Methods</label>
+                        <textarea id="assessment" placeholder="Describe how students will be assessed..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="differentiation">Differentiation Strategies</label>
+                        <textarea id="differentiation" placeholder="How will you adapt for different learning needs..."></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn btn-primary" onclick="generatePreview()">📋 Generate Preview</button>
+                <button class="btn btn-success" onclick="downloadScheme()">📥 Download Scheme of Work</button>
+                <button class="btn btn-info" onclick="downloadLessonPlans()">📚 Download Lesson Plans</button>
+                <button class="btn btn-warning" onclick="downloadNotes()">📝 Download Teaching Notes</button>
+            </div>
+
+            <div class="status-message" id="statusMessage"></div>
+
+            <div class="preview-area">
+                <h3>📖 Preview</h3>
+                <div class="preview-content" id="previewContent">
+                    <p style="color: #666; font-style: italic;">Fill in the form above and click "Generate Preview" to see your scheme of work.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Store current lesson data
+        let currentLessonData = {};
+
+        // Age-appropriate IoT and Robotics content templates
+        const contentTemplates = {
+            'Preschool': {
+                iotConcepts: ['Simple on/off switches', 'Light and dark sensors', 'Sound makers', 'Movement detection'],
+                roboticsConcepts: ['Moving toys', 'Simple machines', 'Push and pull', 'Following paths'],
+                activities: ['Playing with programmable toys', 'Building with blocks', 'Simon Says games', 'Treasure hunts'],
+                vocabulary: ['Robot', 'Button', 'Light', 'Sound', 'Move', 'Stop', 'Go', 'Turn']
+            },
+            'Grade 1': {
+                iotConcepts: ['Smart home devices', 'Temperature sensing', 'Light sensors', 'Sound detection'],
+                roboticsConcepts: ['Basic robot parts', 'Movement patterns', 'Simple commands', 'Input and output'],
+                activities: ['Bee-Bot programming', 'Smart home role play', 'Sensor exploration', 'Basic coding games'],
+                vocabulary: ['Sensor', 'Input', 'Output', 'Command', 'Program', 'Device', 'Smart', 'Control']
+            },
+            'Grade 2': {
+                iotConcepts: ['Connected devices', 'Data collection', 'Smart classroom tools', 'Weather monitoring'],
+                roboticsConcepts: ['Robot design', 'Sequential thinking', 'Problem solving', 'Basic algorithms'],
+                activities: ['Building simple robots', 'Creating weather stations', 'Programming sequences', 'Data recording'],
+                vocabulary: ['Algorithm', 'Sequence', 'Data', 'Monitor', 'Connect', 'Internet', 'Things', 'Network']
+            },
+            'Grade 3': {
+                iotConcepts: ['Internet of Things basics', 'Smart sensors', 'Data transmission', 'Connected systems'],
+                roboticsConcepts: ['Robot mechanics', 'Programming basics', 'Loops and conditions', 'Problem decomposition'],
+                activities: ['Building sensor projects', 'Creating simple robots', 'Basic programming', 'System design'],
+                vocabulary: ['Internet', 'Transmission', 'Loop', 'Condition', 'Variable', 'Function', 'System', 'Design']
+            },
+            'Grade 4': {
+                iotConcepts: ['Smart city concepts', 'Environmental monitoring', 'Home automation', 'Wearable technology'],
+                roboticsConcepts: ['Advanced programming', 'Robot control', 'Feedback systems', 'Autonomous behavior'],
+                activities: ['Smart home projects', 'Environmental sensors', 'Robot competitions', 'App development basics'],
+                vocabulary: ['Automation', 'Autonomous', 'Feedback', 'Environment', 'Wearable', 'Application', 'Interface', 'Protocol']
+            },
+            'Grade 5': {
+                iotConcepts: ['IoT architecture', 'Cloud computing basics', 'Big data introduction', 'Smart agriculture'],
+                roboticsConcepts: ['Complex programming', 'AI basics', 'Machine learning intro', 'Robot ethics'],
+                activities: ['IoT system design', 'Data analysis projects', 'AI-powered robots', 'Ethics discussions'],
+                vocabulary: ['Architecture', 'Cloud', 'Analytics', 'Intelligence', 'Machine Learning', 'Ethics', 'Privacy', 'Security']
+            },
+            'Grade 6': {
+                iotConcepts: ['Advanced IoT systems', 'Cybersecurity basics', 'Edge computing', 'Industrial IoT'],
+                roboticsConcepts: ['Advanced AI', 'Computer vision', 'Natural language processing', 'Robotics careers'],
+                activities: ['Complex IoT projects', 'Security testing', 'Vision-based robots', 'Career exploration'],
+                vocabulary: ['Cybersecurity', 'Edge Computing', 'Computer Vision', 'Processing', 'Industrial', 'Career', 'Innovation', 'Research']
+            },
+            'Grade 7': {
+                iotConcepts: ['IoT protocols', 'Wireless communication', 'Data analytics', 'Smart manufacturing'],
+                roboticsConcepts: ['Advanced robotics', 'Swarm intelligence', 'Human-robot interaction', 'Robotics research'],
+                activities: ['Protocol implementation', 'Wireless projects', 'Advanced programming', 'Research projects'],
+                vocabulary: ['Protocol', 'Wireless', 'Manufacturing', 'Swarm', 'Interaction', 'Implementation', 'Research', 'Development']
+            },
+            'Grade 8': {
+                iotConcepts: ['Enterprise IoT', 'Blockchain in IoT', 'Advanced analytics', 'IoT business models'],
+                roboticsConcepts: ['Professional robotics', 'Industry applications', 'Advanced AI integration', 'Robotics entrepreneurship'],
+                activities: ['Enterprise projects', 'Business case studies', 'Advanced AI robots', 'Startup planning'],
+                vocabulary: ['Enterprise', 'Blockchain', 'Business Model', 'Entrepreneurship', 'Industry', 'Integration', 'Professional', 'Startup']
+            },
+            'Grade 9': {
+                iotConcepts: ['IoT system architecture', 'Advanced security', 'IoT standards', 'Future technologies'],
+                roboticsConcepts: ['Cutting-edge robotics', 'Research methodologies', 'Advanced applications', 'Technology trends'],
+                activities: ['Capstone projects', 'Research presentations', 'Technology forecasting', 'Innovation challenges'],
+                vocabulary: ['Architecture', 'Standards', 'Methodologies', 'Capstone', 'Innovation', 'Forecasting', 'Trends', 'Advanced']
+            }
+        };
+
+        function showStatus(message, type = 'success') {
+            const statusEl = document.getElementById('statusMessage');
+            statusEl.textContent = message;
+            statusEl.className = `status-message ${type}`;
+            statusEl.style.display = 'block';
+            setTimeout(() => statusEl.style.display = 'none', 3000);
+        }
+
+        function validateForm() {
+            const requiredFields = ['gradeLevel', 'term', 'week', 'mainTopic'];
+            for (let field of requiredFields) {
+                if (!document.getElementById(field).value) {
+                    showStatus(`Please fill in ${field.replace(/([A-Z])/g, ' $1').toLowerCase()}`, 'error');
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        function generatePreview() {
+            if (!validateForm()) return;
+
+            const data = collectFormData();
+            currentLessonData = data;
+            
+            const preview = generateSchemeContent(data);
+            document.getElementById('previewContent').innerHTML = preview;
+            showStatus('Preview generated successfully!');
+        }
+
+        function collectFormData() {
+            return {
+                gradeLevel: document.getElementById('gradeLevel').value,
+                term: document.getElementById('term').value,
+                week: document.getElementById('week').value,
+                mainTopic: document.getElementById('mainTopic').value,
+                monday: document.getElementById('monday').value,
+                tuesday: document.getElementById('tuesday').value,
+                wednesday: document.getElementById('wednesday').value,
+                thursday: document.getElementById('thursday').value,
+                friday: document.getElementById('friday').value,
+                learningObjectives: document.getElementById('learningObjectives').value,
+                resources: document.getElementById('resources').value,
+                assessment: document.getElementById('assessment').value,
+                differentiation: document.getElementById('differentiation').value
+            };
+        }
+
+        function generateSchemeContent(data) {
+            const template = contentTemplates[data.gradeLevel] || contentTemplates['Grade 1'];
+            
+            return `
+                <div style="text-align: center; margin-bottom: 30px;">
+                    <h1>SCHEME OF WORK</h1>
+                    <h2>IoT & Robotics - ${data.gradeLevel}</h2>
+                    <h3>${data.term}, ${data.week}</h3>
+                    <hr style="margin: 20px 0;">
+                </div>
+
+                <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+                    <tr>
+                        <td style="border: 1px solid #ccc; padding: 10px; font-weight: bold; background: #f5f5f5;">Subject:</td>
+                        <td style="border: 1px solid #ccc; padding: 10px;">STEM - IoT & Robotics</td>
+                        <td style="border: 1px solid #ccc; padding: 10px; font-weight: bold; background: #f5f5f5;">Grade:</td>
+                        <td style="border: 1px solid #ccc; padding: 10px;">${data.gradeLevel}</td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #ccc; padding: 10px; font-weight: bold; background: #f5f5f5;">Term:</td>
+                        <td style="border: 1px solid #ccc; padding: 10px;">${data.term}</td>
+                        <td style="border: 1px solid #ccc; padding: 10px; font-weight: bold; background: #f5f5f5;">Week:</td>
+                        <td style="border: 1px solid #ccc; padding: 10px;">${data.week}</td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #ccc; padding: 10px; font-weight: bold; background: #f5f5f5;">Main Topic:</td>
+                        <td colspan="3" style="border: 1px solid #ccc; padding: 10px;">${data.mainTopic}</td>
+                    </tr>
+                </table>
+
+                <h3>Learning Objectives:</h3>
+                <p style="margin-bottom: 15px;">${data.learningObjectives || 'Students will explore ' + data.mainTopic + ' through hands-on activities and develop understanding of IoT and robotics concepts appropriate for ' + data.gradeLevel + '.'}</p>
+
+                <h3>Weekly Schedule:</h3>
+                <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+                    <thead>
+                        <tr style="background: #667eea; color: white;">
+                            <th style="border: 1px solid #ccc; padding: 10px;">Day</th>
+                            <th style="border: 1px solid #ccc; padding: 10px;">Activities & Content</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td style="border: 1px solid #ccc; padding: 10px; font-weight: bold;">Monday</td><td style="border: 1px solid #ccc; padding: 10px;">${data.monday || 'Introduction to ' + data.mainTopic}</td></tr>
+                        <tr><td style="border: 1px solid #ccc; padding: 10px; font-weight: bold;">Tuesday</td><td style="border: 1px solid #ccc; padding: 10px;">${data.tuesday || 'Hands-on exploration and experimentation'}</td></tr>
+                        <tr><td style="border: 1px solid #ccc; padding: 10px; font-weight: bold;">Wednesday</td><td style="border: 1px solid #ccc; padding: 10px;">${data.wednesday || 'Practical applications and projects'}</td></tr>
+                        <tr><td style="border: 1px solid #ccc; padding: 10px; font-weight: bold;">Thursday</td><td style="border: 1px solid #ccc; padding: 10px;">${data.thursday || 'Problem-solving and collaboration'}</td></tr>
+                        <tr><td style="border: 1px solid #ccc; padding: 10px; font-weight: bold;">Friday</td><td style="border: 1px solid #ccc; padding: 10px;">${data.friday || 'Review, assessment, and reflection'}</td></tr>
+                    </tbody>
+                </table>
+
+                <h3>Resources & Materials:</h3>
+                <p style="margin-bottom: 15px;">${data.resources || 'Basic robotics kits, sensors, computers/tablets, IoT development boards, craft materials, worksheets, multimedia presentations'}</p>
+
+                <h3>Assessment Methods:</h3>
+                <p style="margin-bottom: 15px;">${data.assessment || 'Practical demonstrations, project portfolios, peer assessments, reflection journals, hands-on evaluations'}</p>
+
+                <h3>Differentiation Strategies:</h3>
+                <p style="margin-bottom: 15px;">${data.differentiation || 'Varied complexity levels, visual and kinesthetic activities, group and individual work, additional support materials, extension activities for advanced learners'}</p>
+            `;
+        }
+
+        function generateLessonPlans(data) {
+            const template = contentTemplates[data.gradeLevel] || contentTemplates['Grade 1'];
+            const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+            
+            let content = `
+                <div style="text-align: center; margin-bottom: 30px;">
+                    <h1>DETAILED LESSON PLANS</h1>
+                    <h2>IoT & Robotics - ${data.gradeLevel}</h2>
+                    <h3>${data.term}, ${data.week}</h3>
+                    <hr style="margin: 20px 0;">
+                </div>
+            `;
+
+            days.forEach((day, index) => {
+                const dayContent = data[day.toLowerCase()] || `Introduction to ${data.mainTopic} concepts`;
+                content += `
+                    <div style="page-break-before: ${index > 0 ? 'always' : 'auto'}; margin-bottom: 30px;">
+                        <h2>${day} - Lesson Plan</h2>
+                        
+                        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+                            <tr>
+                                <td style="border: 1px solid #ccc; padding: 8px; font-weight: bold; background: #f5f5f5;">Duration:</td>
+                                <td style="border: 1px solid #ccc; padding: 8px;">45 minutes</td>
+                                <td style="border: 1px solid #ccc; padding: 8px; font-weight: bold; background: #f5f5f5;">Grade:</td>
+                                <td style="border: 1px solid #ccc; padding: 8px;">${data.gradeLevel}</td>
+                            </tr>
+                        </table>
+
+                        <h4>Lesson Objectives:</h4>
+                        <ul style="margin-bottom: 15px; padding-left: 20px;">
+                            <li>Understand ${template.iotConcepts[index % template.iotConcepts.length]}</li>
+                            <li>Apply ${template.roboticsConcepts[index % template.roboticsConcepts.length]}</li>
+                            <li>Develop ${template.vocabulary[index % template.vocabulary.length]} vocabulary</li>
+                        </ul>
+
+                        <h4>Main Activities:</h4>
+                        <p style="margin-bottom: 15px;">${dayContent}</p>
+                        <p style="margin-bottom: 15px;"><strong>Suggested Activity:</strong> ${template.activities[index % template.activities.length]}</p>
+
+                        <h4>Assessment:</h4>
+                        <p style="margin-bottom: 15px;">Observe student engagement, check understanding through questioning, evaluate practical work completion.</p>
+
+                        <h4>Key Vocabulary:</h4>
+                        <p style="margin-bottom: 15px;">${template.vocabulary.slice(0, 4).join(', ')}</p>
+                        
+                        <hr style="margin: 20px 0;">
+                    </div>
+                `;
+            });
+
+            return content;
+        }
+
+        function generateTeachingNotes(data) {
+            const template = contentTemplates[data.gradeLevel] || contentTemplates['Grade 1'];
+            
+            return `
+                <div style="text-align: center; margin-bottom: 30px;">
+                    <h1>TEACHING NOTES & RESOURCES</h1>
+                    <h2>IoT & Robotics - ${data.gradeLevel}</h2>
+                    <h3>${data.term}, ${data.week}</h3>
+                    <hr style="margin: 20px 0;">
+                </div>
+
+                <h2>Background Information for Teachers</h2>
+                <h3>Internet of Things (IoT) Concepts for ${data.gradeLevel}:</h3>
+                <ul style="margin-bottom: 20px; padding-left: 20px;">
+                    ${template.iotConcepts.map(concept => `<li><strong>${concept}:</strong> Age-appropriate exploration of how everyday objects can be connected and smart.</li>`).join('')}
+                </ul>
+
+                <h3>Robotics Concepts for ${data.gradeLevel}:</h3>
+                <ul style="margin-bottom: 20px; padding-left: 20px;">
+                    ${template.roboticsConcepts.map(concept => `<li><strong>${concept}:</strong> Foundational understanding building toward advanced robotics.</li>`).join('')}
+                </ul>
+
+                <h2>Pedagogical Strategies</h2>
+                <h3>Age-Appropriate Teaching Methods:</h3>
+                <p style="margin-bottom: 15px;">For ${data.gradeLevel}, focus on hands-on, experiential learning with plenty of visual aids and interactive demonstrations. Use storytelling and real-world connections to make abstract concepts tangible.</p>
+
+                <h3>Safety Considerations:</h3>
+                <ul style="margin-bottom: 20px; padding-left: 20px;">
+                    <li>Ensure all electronic components are age-appropriate and safe</li>
+                    <li>Supervise all hands-on activities closely</li>
+                    <li>Check all equipment before use</li>
+                    <li>Establish clear safety protocols for robot operation</li>
+                    <li>Ensure proper handling of batteries and electronic devices</li>
+                </ul>
+
+                <h3>Suggested Activities by Day:</h3>
+                <ul style="margin-bottom: 20px; padding-left: 20px;">
+                    ${template.activities.map((activity, index) => `<li><strong>Day ${index + 1}:</strong> ${activity} - Connect to ${template.iotConcepts[index % template.iotConcepts.length]}</li>`).join('')}
+                </ul>
+
+                <h3>Key Vocabulary with Definitions:</h3>
+                <ul style="margin-bottom: 20px; padding-left: 20px;">
+                    ${template.vocabulary.map(word => `<li><strong>${word}:</strong> ${getVocabularyDefinition(word, data.gradeLevel)}</li>`).join('')}
+                </ul>
+
+                <h3>Extension Activities:</h3>
+                <p style="margin-bottom: 15px;">For advanced learners: Research current IoT applications, design innovative robot solutions, explore programming concepts beyond the curriculum, investigate real-world robotics careers.</p>
+
+                <h3>Support Strategies:</h3>
+                <p style="margin-bottom: 15px;">For struggling learners: Provide visual guides, use peer support systems, break down complex tasks, offer additional practice time, use concrete examples and analogies.</p>
+
+                <h3>Cross-Curricular Connections:</h3>
+                <ul style="margin-bottom: 20px; padding-left: 20px;">
+                    <li><strong>Mathematics:</strong> Programming logic, measurements, data analysis, geometric shapes in robot design</li>
+                    <li><strong>Science:</strong> Technology applications, scientific method, hypothesis testing, engineering design process</li>
+                    <li><strong>Language Arts:</strong> Technical vocabulary, documentation, presentation skills, research and reporting</li>
+                    <li><strong>Art:</strong> Robot design aesthetics, creative problem solving, visual communication</li>
+                </ul>
+
+                <h3>Resources for Further Learning:</h3>
+                <ul style="margin-bottom: 20px; padding-left: 20px;">
+                    <li>Age-appropriate robotics kits and sensors</li>
+                    <li>Educational programming platforms</li>
+                    <li>IoT simulation software</li>
+                    <li>Online tutorials and video resources</li>
+                    <li>Local maker spaces and STEM centers</li>
+                </ul>
+
+                <h2>Weekly Reflection Questions</h2>
+                <p style="margin-bottom: 15px;"><strong>For Students:</strong></p>
+                <ul style="margin-bottom: 15px; padding-left: 20px;">
+                    <li>What new technology did you learn about this week?</li>
+                    <li>How could robots help solve problems in our community?</li>
+                    <li>What was challenging about this week's activities?</li>
+                    <li>How do you see IoT devices in your daily life?</li>
+                </ul>
+
+                <p style="margin-bottom: 15px;"><strong>For Teachers:</strong></p>
+                <ul style="padding-left: 20px;">
+                    <li>Which concepts did students grasp most easily?</li>
+                    <li>What activities generated the most engagement?</li>
+                    <li>How can I improve hands-on learning opportunities?</li>
+                    <li>What additional resources would benefit my students?</li>
+                </ul>
+            `;
+        }
+
+        function getVocabularyDefinition(word, gradeLevel) {
+            const definitions = {
+                'Robot': gradeLevel.includes('Preschool') || gradeLevel.includes('Grade 1') ? 'A machine that can move and do tasks' : 'A programmable machine designed to perform tasks automatically',
+                'Sensor': gradeLevel.includes('Preschool') || gradeLevel.includes('Grade 1') ? 'Something that can detect or feel things around it' : 'A device that detects and responds to physical input from the environment',
+                'Internet': gradeLevel.includes('Preschool') || gradeLevel.includes('Grade 1') ? 'A way for computers to talk to each other' : 'A global network connecting millions of computers worldwide',
+                'Algorithm': gradeLevel.includes('Preschool') || gradeLevel.includes('Grade 1') ? 'A set of steps to solve a problem' : 'A precise sequence of instructions for solving a problem or completing a task',
+                'IoT': gradeLevel.includes('Preschool') || gradeLevel.includes('Grade 1') ? 'Smart things that can connect together' : 'Internet of Things - everyday objects connected to the internet to collect and share data',
+                'Programming': gradeLevel.includes('Preschool') || gradeLevel.includes('Grade 1') ? 'Telling a computer what to do' : 'Writing instructions for computers to follow to accomplish specific tasks'
+            };
+            return definitions[word] || `Important concept in ${gradeLevel} IoT and Robotics curriculum`;
+        }
+
+        function downloadPDF(content, filename, type) {
+            try {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                
+                if (type === 'scheme') {
+                    generateSchemeOfWorkPDF(doc, currentLessonData);
+                } else if (type === 'lesson') {
+                    generateLessonPlanPDF(doc, currentLessonData);
+                } else if (type === 'notes') {
+                    generateTeachingNotesPDF(doc, currentLessonData);
+                }
+                
+                doc.save(filename);
+                showStatus(`${filename} downloaded successfully!`);
+            } catch (error) {
+                showStatus('Download failed. Please try again.', 'error');
+                console.error('PDF generation error:', error);
+            }
+        }
+
+        function generateSchemeOfWorkPDF(doc, data) {
+            let y = 20;
+            
+            // Header
+            doc.setFillColor(44, 62, 80);
+            doc.rect(10, 10, 190, 25, 'F');
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(18);
+            doc.text('SCHEME OF WORK', 105, 22, { align: 'center' });
+            doc.setFontSize(14);
+            doc.text('IoT & Robotics Education', 105, 30, { align: 'center' });
+            
+            y = 45;
+            doc.setTextColor(0, 0, 0);
+            
+            // Basic Information Table
+            doc.setFillColor(102, 126, 234);
+            doc.rect(20, y, 170, 8, 'F');
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(12);
+            doc.text('BASIC INFORMATION', 105, y + 5, { align: 'center' });
+            
+            y += 12;
+            doc.setTextColor(0, 0, 0);
+            doc.setFillColor(248, 249, 250);
+            
+            // Information rows
+            const infoRows = [
+                ['Subject:', 'STEM - IoT & Robotics', 'Grade Level:', data.gradeLevel],
+                ['Term:', data.term, 'Week:', data.week],
+                ['Main Topic:', data.mainTopic, 'Duration:', '5 Days (Monday-Friday)']
+            ];
+            
+            infoRows.forEach(row => {
+                doc.rect(20, y, 42.5, 8, 'F');
+                doc.rect(62.5, y, 42.5, 8);
+                doc.rect(105, y, 42.5, 8, 'F');
+                doc.rect(147.5, y, 42.5, 8);
+                
+                doc.setFont(undefined, 'bold');
+                doc.text(row[0], 22, y + 5);
+                doc.text(row[2], 107, y + 5);
+                doc.setFont(undefined, 'normal');
+                doc.text(row[1], 64.5, y + 5);
+                doc.text(row[3], 149.5, y + 5);
+                y += 8;
+            });
+            
+            y += 10;
+            
+            // Learning Objectives Section
+            doc.setFillColor(102, 126, 234);
+            doc.rect(20, y, 170, 8, 'F');
+            doc.setTextColor(255, 255, 255);
+            doc.text('LEARNING OBJECTIVES', 105, y + 5, { align: 'center' });
+            
+            y += 12;
+            doc.setTextColor(0, 0, 0);
+            const objectives = data.learningObjectives || `Students will explore ${data.mainTopic} through hands-on activities and develop understanding of IoT and robotics concepts appropriate for ${data.gradeLevel}.`;
+            const objLines = doc.splitTextToSize(objectives, 170);
+            objLines.forEach(line => {
+                doc.text(line, 20, y);
+                y += 6;
+            });
+            
+            y += 10;
+            
+            // Weekly Schedule Table
+            doc.setFillColor(102, 126, 234);
+            doc.rect(20, y, 170, 8, 'F');
+            doc.setTextColor(255, 255, 255);
+            doc.text('WEEKLY SCHEDULE', 105, y + 5, { align: 'center' });
+            
+            y += 12;
+            doc.setTextColor(0, 0, 0);
+            
+            // Table header
+            doc.setFillColor(52, 73, 94);
+            doc.rect(20, y, 30, 10, 'F');
+            doc.rect(50, y, 140, 10, 'F');
+            doc.setTextColor(255, 255, 255);
+            doc.setFont(undefined, 'bold');
+            doc.text('DAY', 35, y + 7, { align: 'center' });
+            doc.text('ACTIVITIES & CONTENT', 120, y + 7, { align: 'center' });
+            
+            y += 10;
+            doc.setTextColor(0, 0, 0);
+            doc.setFont(undefined, 'normal');
+            
+            // Daily content
+            const days = [
+                ['Monday', data.monday || 'Introduction to ' + data.mainTopic],
+                ['Tuesday', data.tuesday || 'Hands-on exploration and experimentation'],
+                ['Wednesday', data.wednesday || 'Practical applications and projects'],
+                ['Thursday', data.thursday || 'Problem-solving and collaboration'],
+                ['Friday', data.friday || 'Review, assessment, and reflection']
+            ];
+            
+            days.forEach((dayData, index) => {
+                const fillColor = index % 2 === 0 ? [248, 249, 250] : [255, 255, 255];
+                doc.setFillColor(...fillColor);
+                doc.rect(20, y, 30, 15, 'F');
+                doc.rect(50, y, 140, 15, 'F');
+                doc.setFont(undefined, 'bold');
+                doc.text(dayData[0], 35, y + 8, { align: 'center' });
+                doc.setFont(undefined, 'normal');
+                const contentLines = doc.splitTextToSize(dayData[1], 135);
+                contentLines.forEach((line, i) => {
+                    doc.text(line, 52, y + 5 + (i * 5));
+                });
+                y += 15;
+            });
+            
+            y += 10;
+            
+            // Additional sections
+            const sections = [
+                ['RESOURCES & MATERIALS', data.resources || 'Basic robotics kits, sensors, computers/tablets, IoT development boards'],
+                ['ASSESSMENT METHODS', data.assessment || 'Practical demonstrations, project portfolios, peer assessments'],
+                ['DIFFERENTIATION STRATEGIES', data.differentiation || 'Varied complexity levels, visual and kinesthetic activities']
+            ];
+            
+            sections.forEach(section => {
+                if (y > 250) {
+                    doc.addPage();
+                    y = 20;
+                }
+                
+                doc.setFillColor(102, 126, 234);
+                doc.rect(20, y, 170, 8, 'F');
+                doc.setTextColor(255, 255, 255);
+                doc.text(section[0], 105, y + 5, { align: 'center' });
+                
+                y += 12;
+                doc.setTextColor(0, 0, 0);
+                const contentLines = doc.splitTextToSize(section[1], 170);
+                contentLines.forEach(line => {
+                    doc.text(line, 20, y);
+                    y += 6;
+                });
+                y += 10;
+            });
+        }
+
+        function generateLessonPlanPDF(doc, data) {
+            const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+            const template = contentTemplates[data.gradeLevel] || contentTemplates['Grade 1'];
+            
+            days.forEach((day, dayIndex) => {
+                if (dayIndex > 0) doc.addPage();
+                
+                let y = 20;
+                
+                // Header for each day
+                doc.setFillColor(44, 62, 80);
+                doc.rect(10, 10, 190, 30, 'F');
+                doc.setTextColor(255, 255, 255);
+                doc.setFontSize(16);
+                doc.text('DAILY LESSON PLAN', 105, 20, { align: 'center' });
+                doc.setFontSize(14);
+                doc.text(`${day} - ${data.gradeLevel}`, 105, 28, { align: 'center' });
+                doc.text(`${data.term}, ${data.week}`, 105, 35, { align: 'center' });
+                
+                y = 50;
+                doc.setTextColor(0, 0, 0);
+                
+                // Lesson Information Table
+                doc.setFillColor(102, 126, 234);
+                doc.rect(20, y, 170, 8, 'F');
+                doc.setTextColor(255, 255, 255);
+                doc.setFontSize(12);
+                doc.text('LESSON INFORMATION', 105, y + 5, { align: 'center' });
+                
+                y += 10;
+                doc.setTextColor(0, 0, 0);
+                
+                const lessonInfo = [
+                    ['Subject:', 'STEM - IoT & Robotics', 'Duration:', '45 minutes'],
+                    ['Topic:', data.mainTopic, 'Date:', `${day} - ${data.week}`],
+                    ['Grade:', data.gradeLevel, 'Class Size:', '20-30 students']
+                ];
+                
+                lessonInfo.forEach(row => {
+                    doc.setFillColor(248, 249, 250);
+                    doc.rect(20, y, 42.5, 8, 'F');
+                    doc.rect(62.5, y, 42.5, 8);
+                    doc.rect(105, y, 42.5, 8, 'F');
+                    doc.rect(147.5, y, 42.5, 8);
+                    
+                    doc.setFont(undefined, 'bold');
+                    doc.text(row[0], 22, y + 5);
+                    doc.text(row[2], 107, y + 5);
+                    doc.setFont(undefined, 'normal');
+                    doc.text(row[1], 64.5, y + 5);
+                    doc.text(row[3], 149.5, y + 5);
+                    y += 8;
+                });
+                
+                y += 15;
+                
+                // Lesson Objectives
+                doc.setFillColor(46, 204, 113);
+                doc.rect(20, y, 170, 8, 'F');
+                doc.setTextColor(255, 255, 255);
+                doc.text('LESSON OBJECTIVES', 105, y + 5, { align: 'center' });
+                
+                y += 12;
+                doc.setTextColor(0, 0, 0);
+                const objectives = [
+                    `Understand ${template.iotConcepts[dayIndex % template.iotConcepts.length]}`,
+                    `Apply ${template.roboticsConcepts[dayIndex % template.roboticsConcepts.length]}`,
+                    `Practice ${template.activities[dayIndex % template.activities.length]}`
+                ];
+                
+                objectives.forEach((obj, index) => {
+                    doc.text(`${index + 1}. ${obj}`, 25, y);
+                    y += 6;
+                });
+                
+                y += 10;
+                
+                // Lesson Structure
+                doc.setFillColor(52, 152, 219);
+                doc.rect(20, y, 170, 8, 'F');
+                doc.setTextColor(255, 255, 255);
+                doc.text('LESSON STRUCTURE (45 MINUTES)', 105, y + 5, { align: 'center' });
+                
+                y += 12;
+                doc.setTextColor(0, 0, 0);
+                
+                const lessonStructure = [
+                    ['Introduction (10 min)', 'Warm-up, review previous learning, introduce today\'s topic'],
+                    ['Main Activity (25 min)', data[day.toLowerCase()] || `Explore ${data.mainTopic} concepts`],
+                    ['Wrap-up (10 min)', 'Summary, reflection, prepare for next lesson']
+                ];
+                
+                lessonStructure.forEach(section => {
+                    doc.setFont(undefined, 'bold');
+                    doc.text(section[0], 20, y);
+                    doc.setFont(undefined, 'normal');
+                    const contentLines = doc.splitTextToSize(section[1], 150);
+                    contentLines.forEach(line => {
+                        doc.text(line, 25, y + 6);
+                        y += 6;
+                    });
+                    y += 8;
+                });
+                
+                y += 10;
+                
+                // Resources and Assessment
+                const additionalSections = [
+                    ['RESOURCES REQUIRED', data.resources || 'Robotics kits, sensors, computers, craft materials'],
+                    ['ASSESSMENT', `Observation, practical demonstration, ${template.vocabulary[dayIndex % template.vocabulary.length]} usage`],
+                    ['KEY VOCABULARY', template.vocabulary.slice(0, 6).join(', ')]
+                ];
+                
+                additionalSections.forEach(section => {
+                    if (y > 250) {
+                        doc.addPage();
+                        y = 20;
+                    }
+                    
+                    doc.setFillColor(155, 89, 182);
+                    doc.rect(20, y, 170, 8, 'F');
+                    doc.setTextColor(255, 255, 255);
+                    doc.text(section[0], 105, y + 5, { align: 'center' });
+                    
+                    y += 12;
+                    doc.setTextColor(0, 0, 0);
+                    const contentLines = doc.splitTextToSize(section[1], 170);
+                    contentLines.forEach(line => {
+                        doc.text(line, 20, y);
+                        y += 6;
+                    });
+                    y += 10;
+                });
+            });
+        }
+
+        function generateTeachingNotesPDF(doc, data) {
+            let y = 20;
+            const template = contentTemplates[data.gradeLevel] || contentTemplates['Grade 1'];
+            
+            // Header
+            doc.setFillColor(44, 62, 80);
+            doc.rect(10, 10, 190, 25, 'F');
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(18);
+            doc.text('TEACHING NOTES & RESOURCES', 105, 22, { align: 'center' });
+            doc.setFontSize(12);
+            doc.text(`${data.gradeLevel} - ${data.term}, ${data.week}`, 105, 30, { align: 'center' });
+            
+            y = 45;
+            doc.setTextColor(0, 0, 0);
+            
+            // Background Information
+            doc.setFillColor(46, 204, 113);
+            doc.rect(20, y, 170, 8, 'F');
+            doc.setTextColor(255, 255, 255);
+            doc.text('BACKGROUND INFORMATION', 105, y + 5, { align: 'center' });
+            
+            y += 12;
+            doc.setTextColor(0, 0, 0);
+            
+            // IoT Concepts Table
+            doc.setFont(undefined, 'bold');
+            doc.text('IoT Concepts for ' + data.gradeLevel + ':', 20, y);
+            y += 8;
+            doc.setFont(undefined, 'normal');
+            
+            template.iotConcepts.forEach((concept, index) => {
+                doc.text(`• ${concept}`, 25, y);
+                y += 6;
+            });
+            
+            y += 8;
+            
+            // Robotics Concepts
+            doc.setFont(undefined, 'bold');
+            doc.text('Robotics Concepts for ' + data.gradeLevel + ':', 20, y);
+            y += 8;
+            doc.setFont(undefined, 'normal');
+            
+            template.roboticsConcepts.forEach((concept, index) => {
+                doc.text(`• ${concept}`, 25, y);
+                y += 6;
+            });
+            
+            y += 15;
+            
+            // Teaching Strategies
+            doc.setFillColor(52, 152, 219);
+            doc.rect(20, y, 170, 8, 'F');
+            doc.setTextColor(255, 255, 255);
+            doc.text('TEACHING STRATEGIES', 105, y + 5, { align: 'center' });
+            
+            y += 12;
+            doc.setTextColor(0, 0, 0);
+            
+            const strategies = [
+                'Use hands-on, experiential learning approaches',
+                'Incorporate visual aids and interactive demonstrations',
+                'Connect concepts to real-world applications',
+                'Encourage collaborative problem-solving',
+                'Provide multiple ways to demonstrate understanding'
+            ];
+            
+            strategies.forEach(strategy => {
+                doc.text(`• ${strategy}`, 25, y);
+                y += 6;
+            });
+            
+            y += 15;
+            
+            // Safety Guidelines
+            doc.setFillColor(231, 76, 60);
+            doc.rect(20, y, 170, 8, 'F');
+            doc.setTextColor(255, 255, 255);
+            doc.text('SAFETY GUIDELINES', 105, y + 5, { align: 'center' });
+            
+            y += 12;
+            doc.setTextColor(0, 0, 0);
+            
+            const safety = [
+                'Ensure all electronic components are age-appropriate',
+                'Supervise hands-on activities closely',
+                'Check equipment before each use',
+                'Establish clear safety protocols',
+                'Maintain clean, organized workspace'
+            ];
+            
+            safety.forEach(item => {
+                doc.text(`• ${item}`, 25, y);
+                y += 6;
+            });
+            
+            if (y > 200) {
+                doc.addPage();
+                y = 20;
+            }
+            
+            y += 15;
+            
+            // Vocabulary Development
+            doc.setFillColor(155, 89, 182);
+            doc.rect(20, y, 170, 8, 'F');
+            doc.setTextColor(255, 255, 255);
+            doc.text('KEY VOCABULARY DEVELOPMENT', 105, y + 5, { align: 'center' });
+            
+            y += 12;
+            doc.setTextColor(0, 0, 0);
+            
+            template.vocabulary.forEach(word => {
+                doc.setFont(undefined, 'bold');
+                doc.text(`${word}:`, 25, y);
+                doc.setFont(undefined, 'normal');
+                const definition = getVocabularyDefinition(word, data.gradeLevel);
+                const defLines = doc.splitTextToSize(definition, 140);
+                defLines.forEach(line => {
+                    doc.text(line, 45, y);
+                    y += 6;
+                });
+                y += 2;
+            });
+        }
+
+        function downloadScheme() {
+            if (!validateForm()) return;
+            
+            const data = collectFormData();
+            const filename = `Scheme_of_Work_${data.gradeLevel.replace(/\s+/g, '_')}_${data.term.replace(/\s+/g, '_')}_${data.week.replace(/\s+/g, '_')}.pdf`;
+            
+            downloadPDF('', filename, 'scheme');
+        }
+
+        function downloadLessonPlans() {
+            if (!validateForm()) return;
+            
+            const data = collectFormData();
+            const filename = `Lesson_Plans_${data.gradeLevel.replace(/\s+/g, '_')}_${data.term.replace(/\s+/g, '_')}_${data.week.replace(/\s+/g, '_')}.pdf`;
+            
+            downloadPDF('', filename, 'lesson');
+        }
+
+        function downloadNotes() {
+            if (!validateForm()) return;
+            
+            const data = collectFormData();
+            const filename = `Teaching_Notes_${data.gradeLevel.replace(/\s+/g, '_')}_${data.term.replace(/\s+/g, '_')}_${data.week.replace(/\s+/g, '_')}.pdf`;
+            
+            downloadPDF('', filename, 'notes');
+        }
+
+        // Auto-generate content based on selections
+        document.getElementById('gradeLevel').addEventListener('change', function() {
+            const grade = this.value;
+            const topic = document.getElementById('mainTopic');
+            
+            if (grade && !topic.value) {
+                const suggestions = {
+                    'Preschool': 'Fun with Moving Toys',
+                    'Grade 1': 'What Makes Things Smart?',
+                    'Grade 2': 'Our Connected World',
+                    'Grade 3': 'Introduction to IoT',
+                    'Grade 4': 'Smart Homes and Cities',
+                    'Grade 5': 'IoT in Agriculture',
+                    'Grade 6': 'Cybersecurity Basics',
+                    'Grade 7': 'Wireless Communication',
+                    'Grade 8': 'IoT Business Applications',
+                    'Grade 9': 'Future Technologies'
+                };
+                topic.value = suggestions[grade] || 'IoT and Robotics Fundamentals';
+            }
+        });
+
+        // Auto-fill daily content based on grade level and topic
+        function autoFillContent() {
+            const grade = document.getElementById('gradeLevel').value;
+            const topic = document.getElementById('mainTopic').value;
+            
+            if (!grade || !topic) return;
+            
+            const template = contentTemplates[grade];
+            if (!template) return;
+
+            // Auto-fill if fields are empty
+            const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
+            const dayActivities = [
+                `Introduction to ${topic} - Explore ${template.iotConcepts[0]} through hands-on demonstration`,
+                `Hands-on Activity - Students experiment with ${template.roboticsConcepts[0]} using ${template.activities[0]}`,
+                `Project Work - Apply learning through ${template.activities[1]} and collaborative problem-solving`,
+                `Advanced Exploration - Investigate ${template.iotConcepts[1]} and practice ${template.roboticsConcepts[1]}`,
+                `Review and Assessment - Demonstrate understanding through ${template.activities[2]} and peer sharing`
+            ];
+
+            days.forEach((day, index) => {
+                const field = document.getElementById(day);
+                if (!field.value) {
+                    field.value = dayActivities[index];
+                }
+            });
+
+            // Auto-fill learning objectives if empty
+            const objectives = document.getElementById('learningObjectives');
+            if (!objectives.value) {
+                objectives.value = `By the end of this week, students will be able to: 1) Identify and explain ${template.iotConcepts[0]} in everyday contexts, 2) Demonstrate understanding of ${template.roboticsConcepts[0]} through practical activities, 3) Use appropriate vocabulary including: ${template.vocabulary.slice(0, 4).join(', ')}, 4) Apply problem-solving skills in IoT and robotics contexts appropriate for ${grade}.`;
+            }
+
+            // Auto-fill resources if empty
+            const resources = document.getElementById('resources');
+            if (!resources.value) {
+                resources.value = `Robotics kits appropriate for ${grade}, IoT sensors and devices, computers/tablets for programming, craft materials for building, multimedia presentations, hands-on demonstration materials, safety equipment, assessment rubrics, extension activity worksheets.`;
+            }
+        }
+
+        // Trigger auto-fill when topic changes
+        document.getElementById('mainTopic').addEventListener('blur', autoFillContent);
+    </script>
+</body>
+</html>
