@@ -1193,6 +1193,226 @@
 
         // Trigger auto-fill when topic changes
         document.getElementById('mainTopic').addEventListener('blur', autoFillContent);
+        // Disable right-click context menu
+document.addEventListener('contextmenu', function(e) {
+    e.preventDefault();
+    alert('Inspect element is disabled on this page');
+    return false;
+});
+// Detect F12 key press
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'F12') {
+        e.preventDefault();
+        alert('Developer tools are disabled on this page');
+        return false;
+    }
+    
+    // Detect Ctrl+Shift+I (Chrome, Firefox, Edge)
+    if (e.ctrlKey && e.shiftKey && e.key === 'I') {
+        e.preventDefault();
+        alert('Developer tools are disabled on this page');
+        return false;
+    }
+    
+    // Detect Ctrl+Shift+J (Chrome)
+    if (e.ctrlKey && e.shiftKey && e.key === 'J') {
+        e.preventDefault();
+        alert('Developer tools are disabled on this page');
+        return false;
+    }
+    
+    // Detect Ctrl+U (View source)
+    if (e.ctrlKey && e.key === 'u') {
+        e.preventDefault();
+        alert('View source is disabled on this page');
+        return false;
+    }
+});
     </script>
+    <style>
+         /* Footer Styles */
+        .footer {
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 30px 0 10px;
+            text-align: center;
+            width: 100%;
+        }
+        
+        .footer-content {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .footer-section {
+            flex: 1;
+            min-width: 250px;
+            margin-bottom: 20px;
+            padding: 0 15px;
+        }
+        
+        .footer-section h3 {
+            color: #3498db;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+        
+        .footer-section p, .footer-section a {
+            color: #ecf0f1;
+            margin-bottom: 10px;
+            text-decoration: none;
+        }
+        
+        .footer-section a:hover {
+            color: #3498db;
+            text-decoration: underline;
+        }
+        
+        .contact-info {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .social-icons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .social-icons a {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            background: #3498db;
+            border-radius: 50%;
+            color: white;
+            text-align: center;
+            line-height: 40px;
+            transition: all 0.3s ease;
+        }
+        
+        .social-icons a:hover {
+            background: #2c3e50;
+            transform: translateY(-3px);
+        }
+        
+        .footer-bottom {
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 15px;
+            margin-top: 20px;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+        
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            background: #e74c3c;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            opacity: 0;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .back-to-top.show {
+            opacity: 1;
+        }
+        
+        .back-to-top:hover {
+            background: #c0392b;
+            transform: translateY(-3px);
+        }
+        
+        @media (max-width: 768px) {
+            .footer-content {
+                flex-direction: column;
+            }
+            
+            .footer-section {
+                margin-bottom: 30px;
+            }
+        }
+    </style>
+    <br>
+    <footer>
+        <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>About STEM Planner</h3>
+                <p>A comprehensive tool for STEM educators to create, organize, and manage lesson plans for IoT and Robotics classes from preschool to grade 9.</p>
+            </div>
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <p><a href="#">Home</a></p>
+                <p><a href="#">Lesson Plans</a></p>
+                <p><a href="#">Resources</a></p>
+                <p><a href="#">Blog</a></p>
+            </div>
+            
+            <div class="footer-section">
+                <h3>Contact Us</h3>
+                <div class="contact-info">
+                    <p>Email: support@worldwaysweb-developers.co.ke</p>
+                    <p>Phone: +254-112-293-409</p>
+                    <p>Address: WorldWays Web-Developers</p>
+                </div>
+                <div class="social-icons">
+                    <a href="#" title="Facebook">f</a>
+                    <a href="#" title="Twitter">t</a>
+                    <a href="#" title="Instagram">i</a>
+                    <a href="#" title="LinkedIn">in</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <p>&copy; 2023 STEM Lesson Planner. All rights reserved. | <a href="https://www.worldwaysweb-developers.co.ke/" title="Learn more about our educators">Designed and Developed by worldwaysweb-developers</a></p>
+        </div>
+    </footer>
+    
+    <div class="back-to-top" id="backToTop">↑</div>
+
+    <script>
+        // Back to top functionality
+        const backToTopButton = document.getElementById('backToTop');
+        
+        window.addEventListener('scroll', () => {
+            if (window.pageYOffset > 300) {
+                backToTopButton.classList.add('show');
+            } else {
+                backToTopButton.classList.remove('show');
+            }
+        });
+        
+        backToTopButton.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+        
+        // Current year for copyright
+        document.addEventListener('DOMContentLoaded', () => {
+            const year = new Date().getFullYear();
+            const copyrightElement = document.querySelector('.footer-bottom p');
+            if (copyrightElement) {
+                copyrightElement.innerHTML = copyrightElement.innerHTML.replace('2023', year);
+            }
+        });
+    </script>
+    </footer>
 </body>
 </html>
